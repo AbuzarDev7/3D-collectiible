@@ -43,31 +43,88 @@ const FIGURINE_DETAILS = [
 ];
 
 const FAQS = [
-  { q: "Are these figurines pre-assembled and painted?", a: "Yes, every TOONHUB figurine is shipped fully assembled, cured, and hand-finished with premium acrylic matte/gloss coating, ready to showcase." },
+  { q: "Are these figurines pre-assembled and painted?", a: "Yes, every MINTCAST figurine is shipped fully assembled, cured, and hand-finished with premium acrylic matte/gloss coating, ready to showcase." },
   { q: "What is stereolithography (SLA) crafting?", a: "SLA is an industrial 3D printing method that uses high-precision light to solidify liquid resin. This allows us to craft incredibly clean curves and sharp geometries that standard plastic moldings cannot achieve." },
   { q: "Do these collectibles come with authenticity cards?", a: "Absolutely. Each figurine is individually numbered and includes a certified physical NFC-equipped metal card showing its unit number, batch details, and developer signature." },
   { q: "How long does shipping take?", a: "Since all figurines are handcrafted in limited batches, preparation takes 5-7 business days. DHL Express worldwide shipping takes approximately 3-5 business days depending on location." }
 ];
 
+// Custom hook for handling cross-page section scrolling
+function useScrollNavigation() {
+  const navigate = useNavigate();
+
+  const navigateAndScroll = useCallback((sectionId: string) => {
+    // Check if we are currently on a sub-page (e.g. figurine detail or success page)
+    const isSubPage = window.location.hash !== '#/' && window.location.hash !== '#';
+
+    if (isSubPage) {
+      // Navigate back to Home page first
+      navigate('/');
+      // Wait for HomeView to mount, then scroll to the section
+      setTimeout(() => {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 150);
+    } else {
+      // Already on home page, scroll directly
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, [navigate]);
+
+  return navigateAndScroll;
+}
+
 // Header Component
 function AppHeader() {
+  const navigateAndScroll = useScrollNavigation();
+
   return (
     <header className="w-full flex items-center justify-between py-6 px-4 sm:px-12 bg-black/10 backdrop-blur-md border-b border-white/5 relative z-50">
       <div className="flex items-center gap-12">
         <Link to="/" className="text-xs font-semibold uppercase text-white tracking-[0.18em] opacity-95">
-          TOONHUB
+          MINTCAST
         </Link>
         <nav className="hidden md:flex items-center gap-8 text-[11px] font-semibold text-white/70 tracking-widest uppercase">
           <Link to="/" className="hover:text-white transition-colors duration-150 relative group">
             Home
             <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-white transition-all duration-200 group-hover:w-full" />
           </Link>
-          <a href="#/catalog" className="hover:text-white transition-colors duration-150 relative group">
+          <a
+            href="#catalog"
+            onClick={(e) => {
+              e.preventDefault();
+              navigateAndScroll('catalog');
+            }}
+            className="hover:text-white transition-colors duration-150 relative group cursor-pointer"
+          >
             Catalog
             <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-white transition-all duration-200 group-hover:w-full" />
           </a>
-          <a href="#/craft" className="hover:text-white transition-colors duration-150 relative group">
+          <a
+            href="#craft"
+            onClick={(e) => {
+              e.preventDefault();
+              navigateAndScroll('craft');
+            }}
+            className="hover:text-white transition-colors duration-150 relative group cursor-pointer"
+          >
             Craftsmanship
+            <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-white transition-all duration-200 group-hover:w-full" />
+          </a>
+          <a
+            href="#faq"
+            onClick={(e) => {
+              e.preventDefault();
+              navigateAndScroll('faq');
+            }}
+            className="hover:text-white transition-colors duration-150 relative group cursor-pointer"
+          >
+            Support
             <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-white transition-all duration-200 group-hover:w-full" />
           </a>
         </nav>
@@ -90,7 +147,7 @@ function AppFooter() {
     <footer className="w-full py-16 px-4 sm:px-12 md:px-24 bg-[#0a0a0d] text-white/50 border-t border-white/10 relative z-20">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
         <div className="text-center md:text-left">
-          <h4 className="text-sm font-bold text-white uppercase tracking-[0.2em] mb-2">TOONHUB</h4>
+          <h4 className="text-sm font-bold text-white uppercase tracking-[0.2em] mb-2">MINTCAST</h4>
           <p className="text-xs">Premium high-fidelity SLA 3D figurine collectibles.</p>
         </div>
 
@@ -107,7 +164,7 @@ function AppFooter() {
         </div>
 
         <div className="text-xs text-center md:text-right">
-          <p>&copy; {new Date().getFullYear()} TOONHUB. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} MINTCAST. All rights reserved.</p>
           <p className="text-[10px] text-white/30 mt-1">Handcrafted with care for toy collectors.</p>
         </div>
       </div>
@@ -117,6 +174,7 @@ function AppFooter() {
 
 // ================= VIEW: HOME =================
 function HomeView() {
+  const navigateAndScroll = useScrollNavigation();
   const [activeIndex, setActiveIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
@@ -172,45 +230,33 @@ function HomeView() {
   const getRoleStyles = (role: 'center' | 'left' | 'right' | 'back') => {
     if (role === 'center') {
       return {
-        transform: `translateX(-50%) scale(${isMobile ? 1.25 : 1.68})`,
+        transform: `translate3d(-50%, 0, 0) scale(${isMobile ? 1.22 : 1.3})`,
         filter: 'blur(0px)',
         opacity: 1,
         zIndex: 20,
-        left: '50%',
-        height: isMobile ? '60%' : '92%',
-        bottom: isMobile ? '22%' : '0px',
       };
     }
     if (role === 'left') {
       return {
-        transform: 'translateX(-50%) scale(1)',
+        transform: `translate3d(calc(-50% - ${isMobile ? '36vw' : '26vw'}), ${isMobile ? '-4vh' : '-6vh'}, 0) scale(${isMobile ? 0.72 : 0.88})`,
         filter: 'blur(2px)',
-        opacity: 0.85,
+        opacity: 0.55,
         zIndex: 10,
-        left: isMobile ? '20%' : '30%',
-        height: isMobile ? '16%' : '28%',
-        bottom: isMobile ? '32%' : '12%',
       };
     }
     if (role === 'right') {
       return {
-        transform: 'translateX(-50%) scale(1)',
+        transform: `translate3d(calc(-50% + ${isMobile ? '36vw' : '26vw'}), ${isMobile ? '-4vh' : '-6vh'}, 0) scale(${isMobile ? 0.72 : 0.88})`,
         filter: 'blur(2px)',
-        opacity: 0.85,
+        opacity: 0.55,
         zIndex: 10,
-        left: isMobile ? '80%' : '70%',
-        height: isMobile ? '16%' : '28%',
-        bottom: isMobile ? '32%' : '12%',
       };
     }
     return {
-      transform: 'translateX(-50%) scale(1)',
+      transform: 'translate3d(-50%, 15vh, 0) scale(0.4)',
       filter: 'blur(4px)',
-      opacity: 1,
+      opacity: 0,
       zIndex: 5,
-      left: '50%',
-      height: isMobile ? '13%' : '22%',
-      bottom: isMobile ? '32%' : '12%',
     };
   };
 
@@ -245,16 +291,16 @@ function HomeView() {
           </div>
           <div className="absolute top-1/3 right-1/12 w-16 h-16 rounded-full border-2 border-white/10 animate-float-slow hidden md:block" />
           <div className="absolute left-6 top-1/2 -translate-y-1/2 -rotate-90 origin-left text-[10px] tracking-widest text-white/40 uppercase hidden sm:block">
-            Edition Vol. 01 / Batch 2026
+            MADE BY ABUZAR MSHAHI
           </div>
         </div>
 
-        {/* Giant ghost text "3D SHAPE" */}
+        {/* Giant dynamic background text */}
         <div
           style={{
             zIndex: 2,
-            top: '18%',
-            fontSize: 'clamp(90px, 28vw, 380px)',
+            top: isMobile ? '22%' : '18%',
+            fontSize: isMobile ? 'clamp(36px, 12vw, 64px)' : 'clamp(100px, 18vw, 260px)',
             fontWeight: 900,
             lineHeight: 1,
             letterSpacing: '-0.02em',
@@ -262,40 +308,13 @@ function HomeView() {
             fontFamily: "'Anton', sans-serif",
             color: '#ffffff',
             opacity: 0.12,
+            transition: 'all 650ms cubic-bezier(0.4, 0, 0.2, 1)',
+            transform: `translateY(${isAnimating ? '20px' : '0px'})`,
           }}
           className="absolute inset-x-0 flex items-center justify-center pointer-events-none select-none uppercase"
         >
-          3D SHAPE
+          {FIGURINE_DETAILS[activeIndex].name}
         </div>
-
-        {/* Large Editorial Slide Number */}
-        <div
-          style={{
-            zIndex: 2,
-            fontFamily: "'Anton', sans-serif",
-            transition: 'all 650ms cubic-bezier(0.4, 0, 0.2, 1)',
-            transform: `translateY(${isAnimating ? '-20px' : '0px'})`,
-            opacity: isAnimating ? 0 : 0.09,
-          }}
-          className="absolute top-[28%] left-10 sm:left-24 text-[120px] sm:text-[220px] text-white select-none pointer-events-none leading-none"
-        >
-          0{activeIndex + 1}
-        </div>
-
-        {/* Figurine Spotlight Backdrop Pedestal */}
-        <div
-          style={{
-            backgroundColor: IMAGES[activeIndex].panel,
-            transition: 'background-color 650ms cubic-bezier(0.4, 0, 0.2, 1), transform 650ms cubic-bezier(0.4, 0, 0.2, 1)',
-            zIndex: 3,
-            left: '50%',
-            bottom: isMobile ? '24%' : '6%',
-            width: isMobile ? '230px' : '480px',
-            height: isMobile ? '230px' : '480px',
-            transform: `translateX(-50%) scale(${isAnimating ? 0.95 : 1})`,
-          }}
-          className="absolute rounded-full filter blur-sm opacity-90 shadow-[0_30px_60px_rgba(0,0,0,0.2)] pointer-events-none"
-        />
 
         {/* Top Header inside Hero */}
         <header
@@ -304,18 +323,39 @@ function HomeView() {
         >
           <div className="flex items-center gap-12">
             <Link to="/" className="text-xs font-semibold uppercase text-white tracking-[0.18em] opacity-95">
-              TOONHUB
+              MINTCAST
             </Link>
             <nav className="hidden md:flex items-center gap-8 text-[11px] font-semibold text-white/70 tracking-widest uppercase">
-              <a href="#catalog" className="hover:text-white transition-colors duration-150 relative group">
+              <a
+                href="#catalog"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigateAndScroll('catalog');
+                }}
+                className="hover:text-white transition-colors duration-150 relative group cursor-pointer"
+              >
                 Catalog
                 <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-white transition-all duration-200 group-hover:w-full" />
               </a>
-              <a href="#craft" className="hover:text-white transition-colors duration-150 relative group">
+              <a
+                href="#craft"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigateAndScroll('craft');
+                }}
+                className="hover:text-white transition-colors duration-150 relative group cursor-pointer"
+              >
                 Craftsmanship
                 <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-white transition-all duration-200 group-hover:w-full" />
               </a>
-              <a href="#faq" className="hover:text-white transition-colors duration-150 relative group">
+              <a
+                href="#faq"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigateAndScroll('faq');
+                }}
+                className="hover:text-white transition-colors duration-150 relative group cursor-pointer"
+              >
                 Support
                 <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-white transition-all duration-200 group-hover:w-full" />
               </a>
@@ -324,6 +364,10 @@ function HomeView() {
           <div className="hidden sm:block">
             <a
               href="#catalog"
+              onClick={(e) => {
+                e.preventDefault();
+                navigateAndScroll('catalog');
+              }}
               className="px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white font-semibold text-xs tracking-wider uppercase transition-all duration-200 hover:scale-105 inline-block cursor-pointer outline-none"
             >
               Order Collection
@@ -343,8 +387,10 @@ function HomeView() {
                 style={{
                   position: 'absolute',
                   aspectRatio: '0.6 / 1',
-                  transition:
-                    'transform 650ms cubic-bezier(0.4, 0, 0.2, 1), filter 650ms cubic-bezier(0.4, 0, 0.2, 1), opacity 650ms cubic-bezier(0.4, 0, 0.2, 1), left 650ms cubic-bezier(0.4, 0, 0.2, 1), bottom 650ms cubic-bezier(0.4, 0, 0.2, 1), height 650ms cubic-bezier(0.4, 0, 0.2, 1)',
+                  left: '50%',
+                  bottom: isMobile ? '14%' : '2%',
+                  height: isMobile ? '74%' : '85%',
+                  transition: 'transform 650ms cubic-bezier(0.25, 1, 0.5, 1), filter 650ms cubic-bezier(0.25, 1, 0.5, 1), opacity 650ms cubic-bezier(0.25, 1, 0.5, 1)',
                   willChange: 'transform, filter, opacity',
                   ...roleStyles,
                 }}
@@ -352,7 +398,7 @@ function HomeView() {
                 <Link to={`/figurine/${index}`}>
                   <img
                     src={image.src}
-                    alt={`Toonhub figurine ${index + 1}`}
+                    alt={`Mintcast figurine ${index + 1}`}
                     className="w-full h-full object-contain object-bottom select-none drop-shadow-[0_20px_40px_rgba(0,0,0,0.2)] hover:brightness-110 transition-all duration-200 cursor-pointer"
                     draggable={false}
                   />
@@ -415,20 +461,20 @@ function HomeView() {
         {/* Bottom-left text + nav buttons */}
         <div
           style={{ zIndex: 60, maxWidth: '320px' }}
-          className="absolute bottom-6 left-4 sm:bottom-20 sm:left-24"
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center text-center sm:left-24 sm:translate-x-0 sm:text-left sm:bottom-20"
         >
           <p
             style={{ letterSpacing: '0.02em' }}
             className="font-bold uppercase mb-2 sm:mb-3 text-base sm:text-[22px] text-white opacity-95"
           >
-            TOONHUB FIGURINES
+            MINTCAST FIGURINES
           </p>
           <p className="hidden sm:block text-xs sm:text-sm text-white opacity-85 leading-relaxed mb-4 sm:mb-5">
             The artwork is stunning, shipped fully prepared. The finish is a
             vision, the 3D craft is flawless. Many thanks! Wishing you the win.
             Order now.
           </p>
-          <div className="flex gap-3 sm:gap-4">
+          <div className="flex gap-3 sm:gap-4 justify-center sm:justify-start">
             <button
               onClick={() => navigate('prev')}
               className="w-12 h-12 sm:w-16 sm:h-16 rounded-full border-2 border-white flex items-center justify-center text-white bg-transparent transition-all duration-150 hover:scale-108 hover:bg-white/12 cursor-pointer outline-none focus:ring-2 focus:ring-white/50"
@@ -447,9 +493,13 @@ function HomeView() {
         </div>
 
         {/* Bottom-right link */}
-        <div style={{ zIndex: 60 }} className="absolute bottom-6 right-4 sm:bottom-20 sm:right-10">
+        <div style={{ zIndex: 60 }} className="hidden sm:block absolute sm:bottom-20 sm:right-10">
           <a
             href="#catalog"
+            onClick={(e) => {
+              e.preventDefault();
+              navigateAndScroll('catalog');
+            }}
             style={{
               fontFamily: "'Anton', sans-serif",
               fontSize: 'clamp(20px, 4vw, 56px)',
@@ -463,82 +513,116 @@ function HomeView() {
           </a>
         </div>
       </section>
-
       {/* Catalog Grid */}
-      <section id="catalog" className="w-full py-20 px-4 sm:px-12 md:px-24 max-w-7xl mx-auto">
+      <section id="catalog" className="w-full py-24 px-4 sm:px-12 md:px-24 max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
           <div>
-            <span className="text-xs font-semibold tracking-widest text-[#F4845F] uppercase block mb-2">Series 01 Collection</span>
-            <h2 className="text-3xl sm:text-5xl font-anton uppercase tracking-tight text-white leading-none">
+            <span className="text-xs font-semibold tracking-[0.25em] uppercase block mb-3"
+              style={{ color: '#F4845F' }}>
+              Series 01 Collection
+            </span>
+            <h2 className="font-anton uppercase tracking-tight text-white leading-none"
+              style={{ fontSize: 'clamp(36px, 5vw, 64px)' }}>
               Choose Your Figurine
             </h2>
           </div>
-          <p className="text-white/60 text-sm max-w-sm leading-relaxed">
+          <p className="text-white/50 text-sm max-w-sm leading-relaxed font-light">
             Four exclusive custom model series, designed by leading 3D character artists, printed using advanced SLA resin printers, and hand-coated.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {FIGURINE_DETAILS.map((fig, idx) => (
             <div
               key={idx}
-              className="bg-white/5 border border-white/10 rounded-[32px] p-6 hover:border-white/20 hover:bg-white/8 transition-all duration-300 flex flex-col justify-between group"
+              className="group flex flex-col rounded-[28px] overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl"
+              style={{
+                background: `linear-gradient(145deg, ${IMAGES[idx].bg}18 0%, #16171d 60%)`,
+                border: `1.5px solid ${IMAGES[idx].bg}30`,
+              }}
             >
-              <div>
-                <div
-                  style={{ backgroundColor: IMAGES[idx].bg + '20' }}
-                  className="w-full aspect-[4/5] rounded-2xl flex items-center justify-center overflow-hidden mb-6 relative border border-white/5"
+              {/* Image area */}
+              <div
+                className="relative flex items-end justify-center overflow-hidden"
+                style={{
+                  background: `radial-gradient(ellipse at 50% 100%, ${IMAGES[idx].panel}55 0%, ${IMAGES[idx].bg}22 60%, transparent 100%)`,
+                  minHeight: '260px',
+                }}
+              >
+                {/* Rating badge */}
+                <span
+                  className="absolute top-4 left-4 text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full backdrop-blur-sm border"
+                  style={{ color: IMAGES[idx].bg, borderColor: IMAGES[idx].bg + '50', backgroundColor: IMAGES[idx].bg + '15' }}
                 >
-                  <div
-                    style={{ backgroundColor: IMAGES[idx].panel }}
-                    className="absolute w-24 h-24 rounded-full filter blur-xl opacity-40 bottom-4 left-1/2 -translate-x-1/2"
+                  ★ {fig.rating}
+                </span>
+                {/* Ultra Rare badge */}
+                <span className="absolute top-4 right-4 text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-amber-400/10 text-amber-300 border border-amber-400/25 backdrop-blur-sm">
+                  Ultra Rare
+                </span>
+                <Link to={`/figurine/${idx}`} className="w-full flex items-end justify-center pt-6 pb-2">
+                  <img
+                    src={IMAGES[idx].src}
+                    alt={fig.name}
+                    className="object-contain object-bottom select-none cursor-pointer transition-transform duration-500 group-hover:scale-110 group-hover:-translate-y-2 drop-shadow-[0_15px_35px_rgba(0,0,0,0.4)]"
+                    style={{ height: '200px', maxWidth: '100%' }}
+                    draggable={false}
                   />
-                  <Link to={`/figurine/${idx}`}>
-                    <img
-                      src={IMAGES[idx].src}
-                      alt={fig.name}
-                      className="w-[85%] h-[85%] object-contain object-bottom transition-transform duration-300 group-hover:scale-110 select-none cursor-pointer"
-                      draggable={false}
-                    />
-                  </Link>
-                  <span className="absolute top-4 left-4 text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-white/10 text-white backdrop-blur-sm border border-white/10">
-                    ★ {fig.rating} Score
-                  </span>
-                </div>
-
-                <div className="mb-6">
-                  <div className="flex justify-between items-center mb-1.5">
-                    <span className="text-[10px] uppercase font-bold tracking-widest text-white/50">
-                      {fig.series}
-                    </span>
-                    <span className="text-[10px] uppercase font-bold text-amber-300 tracking-wider">
-                      Ultra Rare
-                    </span>
-                  </div>
-                  <h3 className="text-xl font-bold uppercase text-white mb-2">{fig.name}</h3>
-                  <div className="grid grid-cols-2 gap-y-1 text-xs text-white/60">
-                    <div>Height: <span className="text-white font-medium">{fig.height}</span></div>
-                    <div>Material: <span className="text-white font-medium">{fig.material.split(' ')[0]}</span></div>
-                  </div>
-                </div>
+                </Link>
               </div>
 
-              <div>
-                <div className="flex justify-between items-end mb-4">
+              {/* Content area */}
+              <div className="flex flex-col flex-grow p-5 gap-4">
+                {/* Series label */}
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em]"
+                  style={{ color: IMAGES[idx].bg }}>
+                  {fig.series}
+                </span>
+
+                {/* Name */}
+                <h3 className="font-anton text-2xl uppercase text-white leading-none tracking-wide">
+                  {fig.name}
+                </h3>
+
+                {/* Specs row */}
+                <div className="flex gap-4 text-xs text-white/50">
                   <div>
-                    <span className="text-[9px] uppercase tracking-wider text-white/40 block">Price</span>
-                    <span className="text-xl font-bold text-white">{fig.price}</span>
+                    <span className="block text-[9px] uppercase tracking-wider mb-0.5 text-white/30">Height</span>
+                    <span className="font-semibold text-white/80">{fig.height}</span>
                   </div>
-                  <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-widest border border-emerald-400/25 px-2 py-0.5 rounded bg-emerald-400/5">
+                  <div>
+                    <span className="block text-[9px] uppercase tracking-wider mb-0.5 text-white/30">Material</span>
+                    <span className="font-semibold text-white/80">{fig.material.split(' ')[0]}</span>
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div className="h-px w-full" style={{ backgroundColor: IMAGES[idx].bg + '25' }} />
+
+                {/* Price + CTA */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-[9px] uppercase tracking-wider text-white/30 block mb-0.5">Price</span>
+                    <span className="font-anton text-2xl text-white">{fig.price}</span>
+                  </div>
+                  <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-widest border border-emerald-400/25 px-2.5 py-1 rounded-full bg-emerald-400/5">
                     In Stock
                   </span>
                 </div>
+
                 <Link
                   to={`/figurine/${idx}`}
+                  className="w-full py-3 rounded-xl font-bold text-[11px] tracking-[0.18em] uppercase text-center block transition-all duration-300 mt-auto"
                   style={{
-                    '--hover-bg': IMAGES[idx].bg,
-                  } as React.CSSProperties}
-                  className="w-full py-3 rounded-xl bg-white/10 text-white font-semibold text-xs tracking-wider uppercase border border-white/10 transition-all duration-300 hover:bg-[var(--hover-bg)] hover:text-black hover:border-transparent hover:scale-[1.02] cursor-pointer text-center block"
+                    backgroundColor: IMAGES[idx].bg,
+                    color: '#111',
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLAnchorElement).style.filter = 'brightness(1.15)';
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLAnchorElement).style.filter = 'brightness(1)';
+                  }}
                 >
                   Configure & Buy
                 </Link>
@@ -549,50 +633,104 @@ function HomeView() {
       </section>
 
       {/* Craftsmanship Section */}
-      <section id="craft" className="w-full bg-[#16171d] py-24 px-4 sm:px-12 md:px-24">
+      <section id="craft" className="w-full bg-gradient-to-b from-[#121318] to-[#16171d] py-28 px-4 sm:px-12 md:px-24 border-t border-white/5">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20 max-w-xl mx-auto">
-            <span className="text-xs font-semibold tracking-widest text-[#6BBF7A] uppercase block mb-3">Premium Build Standard</span>
-            <h2 className="text-3xl sm:text-5xl font-anton uppercase tracking-tight text-white mb-4">
+            <span className="text-xs font-semibold tracking-[0.25em] text-[#6BBF7A] uppercase block mb-3">Premium Build Standard</span>
+            <h2 className="text-3xl sm:text-5xl font-anton uppercase tracking-tight text-white mb-4 leading-none">
               Designed For Collectors
             </h2>
-            <p className="text-white/60 text-sm leading-relaxed">
+            <p className="text-white/50 text-sm leading-relaxed font-light">
               We merge cutting-edge stereolithography additive manufacturing with hand-layered custom painting to deliver flawless desk showpieces.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="p-8 rounded-[32px] bg-white/5 border border-white/5 hover:border-white/15 transition-all duration-300 flex flex-col gap-6">
-              <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-white">
+            {/* Card 1 */}
+            <div className="group p-8 rounded-[28px] transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 flex flex-col gap-6"
+              style={{
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)',
+                border: '1.5px solid rgba(255,255,255,0.06)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#6BBF7A50';
+                e.currentTarget.style.boxShadow = '0 10px 30px -10px rgba(107, 191, 122, 0.15)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            >
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-[#6BBF7A] transition-transform duration-300 group-hover:scale-110"
+                style={{
+                  background: 'rgba(107, 191, 122, 0.1)',
+                  border: '1.5px solid rgba(107, 191, 122, 0.2)',
+                }}>
                 <Layers size={28} />
               </div>
               <div>
-                <h3 className="text-xl font-bold uppercase mb-2">High-Res SLA Resin</h3>
-                <p className="text-sm text-white/60 leading-relaxed">
+                <h3 className="text-xl font-bold uppercase text-white mb-3 tracking-wide font-anton">High-Res SLA Resin</h3>
+                <p className="text-xs sm:text-sm text-white/50 leading-relaxed font-light">
                   Printed in ultra-thin 0.05mm resin layers to capture precise facial expressions and micro-geometries that standard injection molding merges away.
                 </p>
               </div>
             </div>
 
-            <div className="p-8 rounded-[32px] bg-white/5 border border-white/5 hover:border-white/15 transition-all duration-300 flex flex-col gap-6">
-              <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-white">
+            {/* Card 2 */}
+            <div className="group p-8 rounded-[28px] transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 flex flex-col gap-6"
+              style={{
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)',
+                border: '1.5px solid rgba(255,255,255,0.06)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#F4845F50';
+                e.currentTarget.style.boxShadow = '0 10px 30px -10px rgba(244, 132, 95, 0.15)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            >
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-[#F4845F] transition-transform duration-300 group-hover:scale-110"
+                style={{
+                  background: 'rgba(244, 132, 95, 0.1)',
+                  border: '1.5px solid rgba(244, 132, 95, 0.2)',
+                }}>
                 <Award size={28} />
               </div>
               <div>
-                <h3 className="text-xl font-bold uppercase mb-2">Artisan Hand-Coated</h3>
-                <p className="text-sm text-white/60 leading-relaxed">
+                <h3 className="text-xl font-bold uppercase text-white mb-3 tracking-wide font-anton">Artisan Hand-Coated</h3>
+                <p className="text-xs sm:text-sm text-white/50 leading-relaxed font-light">
                   Individually airbrushed and detailed by professional toy designers using premium matte colors and gloss varnishes that resist yellowing over time.
                 </p>
               </div>
             </div>
 
-            <div className="p-8 rounded-[32px] bg-white/5 border border-white/5 hover:border-white/15 transition-all duration-300 flex flex-col gap-6">
-              <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-white">
+            {/* Card 3 */}
+            <div className="group p-8 rounded-[28px] transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 flex flex-col gap-6"
+              style={{
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)',
+                border: '1.5px solid rgba(255,255,255,0.06)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#6EB5FF50';
+                e.currentTarget.style.boxShadow = '0 10px 30px -10px rgba(110, 181, 255, 0.15)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            >
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-[#6EB5FF] transition-transform duration-300 group-hover:scale-110"
+                style={{
+                  background: 'rgba(110, 181, 255, 0.1)',
+                  border: '1.5px solid rgba(110, 181, 255, 0.2)',
+                }}>
                 <Truck size={28} />
               </div>
               <div>
-                <h3 className="text-xl font-bold uppercase mb-2">Safe Vault Packing</h3>
-                <p className="text-sm text-white/60 leading-relaxed">
+                <h3 className="text-xl font-bold uppercase text-white mb-3 tracking-wide font-anton">Safe Vault Packing</h3>
+                <p className="text-xs sm:text-sm text-white/50 leading-relaxed font-light">
                   Shipped inside custom-molded high-density foam shells and wrapped in a premium display box to guarantee your collector model arrives flawless.
                 </p>
               </div>
@@ -602,10 +740,10 @@ function HomeView() {
       </section>
 
       {/* FAQ Accordion */}
-      <section id="faq" className="w-full py-24 px-4 sm:px-12 md:px-24 max-w-4xl mx-auto">
+      <section id="faq" className="w-full py-28 px-4 sm:px-12 md:px-24 max-w-4xl mx-auto">
         <div className="text-center mb-16">
-          <span className="text-xs font-semibold tracking-widest text-[#E882B4] uppercase block mb-3">Any Questions?</span>
-          <h2 className="text-3xl sm:text-5xl font-anton uppercase tracking-tight text-white mb-4">
+          <span className="text-xs font-semibold tracking-[0.25em] text-[#E882B4] uppercase block mb-3">Any Questions?</span>
+          <h2 className="text-3xl sm:text-5xl font-anton uppercase tracking-tight text-white mb-4 leading-none">
             Frequently Asked FAQs
           </h2>
         </div>
@@ -613,31 +751,43 @@ function HomeView() {
         <div className="flex flex-col gap-4">
           {FAQS.map((faq, index) => {
             const isOpen = openFaq === index;
+            const colors = ['#6BBF7A', '#F4845F', '#6EB5FF', '#E882B4'];
+            const color = colors[index % colors.length];
             return (
               <div
                 key={index}
-                className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden transition-all duration-300"
+                className="overflow-hidden transition-all duration-300 rounded-[20px]"
+                style={{
+                  background: isOpen 
+                    ? `linear-gradient(145deg, ${color}10 0%, rgba(255,255,255,0.02) 100%)`
+                    : 'rgba(255,255,255,0.02)',
+                  border: isOpen
+                    ? `1.5px solid ${color}40`
+                    : '1.5px solid rgba(255,255,255,0.06)',
+                  boxShadow: isOpen ? `0 10px 25px -10px ${color}20` : 'none',
+                }}
               >
                 <button
                   onClick={() => setOpenFaq(isOpen ? null : index)}
-                  className="w-full p-6 flex justify-between items-center text-left hover:bg-white/8 transition-colors duration-150 cursor-pointer outline-none"
+                  className="w-full p-6 flex justify-between items-center text-left transition-colors duration-150 cursor-pointer outline-none"
                 >
-                  <span className="font-bold text-sm sm:text-base text-white tracking-wide uppercase">
+                  <span className="font-bold text-sm sm:text-base text-white tracking-wide uppercase font-anton">
                     {faq.q}
                   </span>
                   <ChevronDown
-                    className={`text-white/60 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+                    className="text-white/60 transition-transform duration-300"
+                    style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', color: isOpen ? color : 'white' }}
                     size={20}
                   />
                 </button>
                 <div
                   style={{
                     maxHeight: isOpen ? '200px' : '0px',
-                    transition: 'max-height 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+                    transition: 'max-height 350ms cubic-bezier(0.4, 0, 0.2, 1)',
                   }}
                   className="overflow-hidden"
                 >
-                  <p className="p-6 pt-0 text-xs sm:text-sm text-white/70 leading-relaxed border-t border-white/5">
+                  <p className="p-6 pt-0 text-xs sm:text-sm text-white/50 leading-relaxed font-light border-t border-white/5">
                     {faq.a}
                   </p>
                 </div>
@@ -648,20 +798,26 @@ function HomeView() {
       </section>
 
       {/* Whitelist drop list */}
-      <section className="w-full py-24 px-4 bg-gradient-to-b from-[#121318] to-[#0d0e12] border-t border-white/5 text-center relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-[#6EB5FF]/10 filter blur-3xl opacity-30 pointer-events-none" />
+      <section className="w-full py-28 px-4 bg-gradient-to-b from-[#16171d] to-[#0d0e12] border-t border-white/5 text-center relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-[#6EB5FF]/10 filter blur-3xl opacity-20 pointer-events-none" />
 
-        <div className="max-w-xl mx-auto relative z-10">
-          <span className="text-xs font-semibold tracking-widest text-[#6EB5FF] uppercase block mb-3">Series 02 Is Coming</span>
-          <h2 className="text-3xl sm:text-5xl font-anton uppercase tracking-tight text-white mb-4">
+        <div className="max-w-2xl mx-auto relative z-10 p-8 sm:p-12 rounded-[32px] overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)',
+            border: '1.5px solid rgba(255,255,255,0.06)',
+            boxShadow: '0 20px 50px rgba(0,0,0,0.3)',
+          }}
+        >
+          <span className="text-xs font-semibold tracking-[0.25em] text-[#6EB5FF] uppercase block mb-3">Series 02 Is Coming</span>
+          <h2 className="text-3xl sm:text-5xl font-anton uppercase tracking-tight text-white mb-4 leading-none">
             Get On The Drop List
           </h2>
-          <p className="text-white/60 text-sm mb-8 leading-relaxed">
+          <p className="text-white/50 text-sm mb-8 leading-relaxed font-light max-w-lg mx-auto">
             Our limited batches sell out in minutes. Subscribe to receive drop notifications, secret artist editions, and early whitelist pre-order windows.
           </p>
 
           {subscribed ? (
-            <div className="p-6 rounded-2xl bg-white/5 border border-white/10 text-emerald-400 font-semibold text-sm flex items-center justify-center gap-2 max-w-md mx-auto">
+            <div className="p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-semibold text-sm flex items-center justify-center gap-2 max-w-md mx-auto">
               <ShieldCheck size={20} />
               <span>You're Whitelisted! We will notify you for Series 02.</span>
             </div>
@@ -673,11 +829,23 @@ function HomeView() {
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
                 placeholder="Enter your email address"
-                className="flex-grow px-5 py-3.5 rounded-xl bg-white/5 border border-white/15 text-white placeholder-white/30 text-sm outline-none focus:border-white/40 focus:bg-white/10 transition-all duration-200"
+                className="flex-grow px-5 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 text-sm outline-none focus:border-white/20 focus:bg-white/10 transition-all duration-200"
               />
               <button
                 type="submit"
-                className="px-6 py-3.5 rounded-xl bg-white text-black font-semibold text-xs tracking-wider uppercase hover:bg-neutral-200 transition-colors duration-200 flex items-center justify-center gap-2 cursor-pointer"
+                className="px-8 py-3.5 rounded-xl font-bold text-xs tracking-[0.15em] uppercase transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer"
+                style={{
+                  backgroundColor: '#6EB5FF',
+                  color: '#111',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.filter = 'brightness(1.15)';
+                  e.currentTarget.style.boxShadow = '0 0 20px rgba(110, 181, 255, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.filter = 'brightness(1)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
               >
                 <span>Whitelist</span>
                 <Send size={12} />
@@ -949,7 +1117,7 @@ function SuccessView() {
           Pre-order Registered!
         </h1>
         <p className="text-white/60 text-sm mb-6 leading-relaxed">
-          Thank you for securing your TOONHUB collectible figurine. Batch validation was successful and your unit reservation is completed.
+          Thank you for securing your MINTCAST collectible figurine. Batch validation was successful and your unit reservation is completed.
         </p>
 
         {/* Invoice specifications */}
